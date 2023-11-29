@@ -1,8 +1,6 @@
 package metadata
 
-import "sync"
-
 type loaderInterface interface {
-	Load(wg *sync.WaitGroup)
+	Load()
 	Update(id int64)
 }
