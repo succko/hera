@@ -20,12 +20,14 @@ func (loader *loader) Init(cxt context.Context, param *xxl.RunReq) (msg string) 
 
 func (loader *loader) InitializeMetadata(funcs []func(wg *sync.WaitGroup)) {
 	zap.L().Info("metadata initializeMetadata start")
-	var wg sync.WaitGroup
-	wg.Add(len(funcs))
-	for _, f := range funcs {
-		go f(&wg)
+	if len(funcs) > 0 {
+		var wg sync.WaitGroup
+		wg.Add(len(funcs))
+		for _, f := range funcs {
+			go f(&wg)
+		}
+		wg.Wait()
 	}
-	wg.Wait()
 	zap.L().Info("metadata initializeMetadata success")
 	return
 }

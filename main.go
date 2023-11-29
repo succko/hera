@@ -61,6 +61,14 @@ var _server *Server
 
 func Register(server *Server) error {
 	_server = server
+	if _c == nil {
+		Callback(&C{
+			Cron:              func(c *cron.Cron) {},
+			RocketMqConsumers: map[string]func(message []byte){},
+			MetaData:          []func(wg *sync.WaitGroup){},
+		})
+	}
+
 	// 初始化配置
 	if _, err := bootstrap.InitializeConfig(); err != nil {
 		return err
@@ -101,7 +109,7 @@ func Register(server *Server) error {
 		inits = append(inits, // 初始化Redis
 			func() error {
 				defer wg.Done()
-				bootstrap.InitializeRedis()
+				global.App.Redis = bootstrap.InitializeRedis()
 				return nil
 			})
 	}
@@ -159,7 +167,6 @@ func Register(server *Server) error {
 				w.Wait()
 				return nil
 			})
-		return nil
 	}
 
 	wg.Add(len(inits))

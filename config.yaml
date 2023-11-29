@@ -1,0 +1,9 @@
+app:
+  app_name: wsd-athena-go       # 应用名称
+nacos:
+  servers:
+    - server-addr: 112.74.167.160
+      port: 8848
+  namespace: 8f5b4610-8551-4518-8402-e123952bb23c
+  username: pala-dev
+  password: Ukrynm^xzY

@@ -18,8 +18,10 @@ var Mq = new(mq)
 
 func InitializeRocketMqConsumers(c map[string]func(message []byte)) []rocketmq.PushConsumer {
 	var consumers []rocketmq.PushConsumer
-	for k, v := range c {
-		consumers = append(consumers, initializeRocketMqConsumer(k, v))
+	if len(c) > 0 {
+		for k, v := range c {
+			consumers = append(consumers, initializeRocketMqConsumer(k, v))
+		}
 	}
 	return consumers
 }

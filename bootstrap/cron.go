@@ -6,6 +6,8 @@ var c *cron.Cron
 
 func InitializeCron(f func(c *cron.Cron)) {
 	c = cron.New()
-	f(c)
+	if c != nil {
+		f(c)
+	}
 	c.Start()
 }
