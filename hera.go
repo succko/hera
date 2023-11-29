@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/robfig/cron/v3"
 	"github.com/succko/hera/bootstrap"
+	"github.com/succko/hera/global"
 	"strconv"
 )
 
@@ -12,7 +13,7 @@ func InitializeCron(f func(c *cron.Cron)) {
 }
 
 func InitializeRedis() {
-	bootstrap.InitializeRedis()
+	global.App.Redis = bootstrap.InitializeRedis()
 }
 
 // ToUTC converts a time string (HH:mm) from a specified timezone to UTC time string (HH:mm).
