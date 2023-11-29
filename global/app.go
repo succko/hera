@@ -12,7 +12,6 @@ import (
 	"go.uber.org/zap"
 	"google.golang.org/grpc"
 	"gorm.io/gorm"
-	"sync"
 )
 
 type app struct {
@@ -32,7 +31,7 @@ type RunConfig struct {
 	Nacos             map[string]any
 	Cron              func(c *cron.Cron)
 	RocketMqConsumers map[string]func(message []byte)
-	MetaData          []func(wg *sync.WaitGroup)
+	MetaData          []func()
 	Grpc              func(server *grpc.Server)
 	Xxl               func(exec xxl.Executor)
 	Router            func(router *gin.Engine)

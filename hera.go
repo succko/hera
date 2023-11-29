@@ -53,7 +53,7 @@ func RegisterRocketMqConsumers(m map[string]func(message []byte)) {
 }
 
 // RegisterMetaData 注册元数据
-func RegisterMetaData(fs []func(wg *sync.WaitGroup)) {
+func RegisterMetaData(fs []func()) {
 	_modules.Metadata = true
 	global.App.RunConfig.MetaData = fs
 }

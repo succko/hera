@@ -7,7 +7,6 @@ import (
 	"go.uber.org/zap"
 	"google.golang.org/grpc"
 	"net/http"
-	"sync"
 )
 
 func main() {
@@ -37,7 +36,7 @@ func main() {
 		})
 	})
 	hera.RegisterRocketMqConsumers(map[string]func(message []byte){})
-	hera.RegisterMetaData([]func(wg *sync.WaitGroup){})
+	hera.RegisterMetaData([]func(){})
 	hera.RegisterGrpc(func(server *grpc.Server) {
 		// 注册 grpc 服务
 	})

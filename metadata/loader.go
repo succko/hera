@@ -26,10 +26,11 @@ func (loader *loader) InitializeMetadata() {
 		var wg sync.WaitGroup
 		wg.Add(len(funcs))
 		for _, f := range funcs {
-			func(f func(wg *sync.WaitGroup)) {
+			f := f
+			go func() {
 				defer wg.Done()
-				f(&wg)
-			}(f)
+				f()
+			}()
 		}
 		wg.Wait()
 	}
