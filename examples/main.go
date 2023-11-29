@@ -15,14 +15,9 @@ func main() {
 	modules := &hera.Modules{
 		Db:        true,
 		Redis:     true,
-		Xxl:       true,
 		Nacos:     true,
-		Metadata:  true,
-		Rocketmq:  true,
 		Oss:       true,
-		Grpc:      true,
 		Flag:      true,
-		Cron:      true,
 		Validator: true,
 	}
 	hera.RegisterModules(modules)
