@@ -22,7 +22,7 @@ import (
 
 // @host 127.0.0.1:48085
 func main() {
-	defer deferHandle()
+	defer DeferHandle()
 	if err := Init(); err != nil {
 		zap.L().DPanic("Initialization failed", zap.Error(err))
 	}
