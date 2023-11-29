@@ -2,8 +2,15 @@ package hera
 
 import (
 	"fmt"
+	"github.com/robfig/cron/v3"
+	"github.com/succko/hera/bootstrap"
 	"strconv"
 )
+
+// InitializeCron initializes the cron.
+func InitializeCron(f func(c *cron.Cron)) {
+	bootstrap.InitializeCron(f)
+}
 
 // ToUTC converts a time string (HH:mm) from a specified timezone to UTC time string (HH:mm).
 func ToUTC(timezoneOffset float64, time string) (string, error) {
