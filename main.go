@@ -10,9 +10,14 @@ import (
 	"sync"
 )
 
+type h struct {
+}
+
+var Hera = new(h)
+
 func main() {
-	defer DeferHandle()
-	server := &Server{
+	defer Hera.DeferHandle()
+	mod := &Modules{
 		Db:        true,
 		Redis:     true,
 		Xxl:       true,
@@ -25,7 +30,7 @@ func main() {
 		Cron:      true,
 		Validator: true,
 	}
-	if err := Register(server); err != nil {
+	if err := Hera.Run(mod); err != nil {
 		zap.L().DPanic("Initialization failed", zap.Error(err))
 	}
 	fmt.Println("启动成功")
@@ -39,11 +44,12 @@ type C struct {
 
 var _c *C
 
-func Callback(c *C) {
+func (h *h) Callback(c *C) *h {
 	_c = c
+	return h
 }
 
-type Server struct {
+type Modules struct {
 	Db        bool
 	Redis     bool
 	Xxl       bool
@@ -57,12 +63,12 @@ type Server struct {
 	Validator bool
 }
 
-var _server *Server
+var _modules *Modules
 
-func Register(server *Server) error {
-	_server = server
+func (h *h) Run(modules *Modules) error {
+	_modules = modules
 	if _c == nil {
-		Callback(&C{
+		h.Callback(&C{
 			Cron:              func(c *cron.Cron) {},
 			RocketMqConsumers: map[string]func(message []byte){},
 			MetaData:          []func(wg *sync.WaitGroup){},
@@ -75,14 +81,14 @@ func Register(server *Server) error {
 	}
 
 	// 初始化nacos配置
-	if _server.Nacos {
+	if _modules.Nacos {
 		if err := bootstrap.InitializeNacosConfig(); err != nil {
 			return err
 		}
 	}
 
 	// 初始化flag
-	if _server.Flag {
+	if _modules.Flag {
 		bootstrap.InitializeFlag()
 	}
 
@@ -90,14 +96,14 @@ func Register(server *Server) error {
 	global.App.Log = bootstrap.InitializeLog()
 
 	// 初始化数据库
-	if _server.Db {
+	if _modules.Db {
 		global.App.DB = bootstrap.InitializeDB()
 	}
 
 	var wg sync.WaitGroup
 
 	inits := make([]func() error, 0)
-	if _server.Db {
+	if _modules.Db {
 		inits = append(inits, // 初始化验证器
 			func() error {
 				defer wg.Done()
@@ -105,7 +111,7 @@ func Register(server *Server) error {
 			})
 	}
 
-	if _server.Redis {
+	if _modules.Redis {
 		inits = append(inits, // 初始化Redis
 			func() error {
 				defer wg.Done()
@@ -114,7 +120,7 @@ func Register(server *Server) error {
 			})
 	}
 
-	if _server.Xxl {
+	if _modules.Xxl {
 		inits = append(inits, // 初始化Xxl
 			func() error {
 				defer wg.Done()
@@ -123,7 +129,7 @@ func Register(server *Server) error {
 			})
 	}
 
-	if _server.Metadata {
+	if _modules.Metadata {
 		inits = append(inits, // 初始化元数据
 			func() error {
 				defer wg.Done()
@@ -132,7 +138,7 @@ func Register(server *Server) error {
 			})
 	}
 
-	if _server.Oss {
+	if _modules.Oss {
 		inits = append(inits, // 初始化OSS
 			func() error {
 				defer wg.Done()
@@ -141,7 +147,7 @@ func Register(server *Server) error {
 			})
 	}
 
-	if _server.Cron {
+	if _modules.Cron {
 		inits = append(inits, // 初始化Cron
 			func() error {
 				defer wg.Done()
@@ -150,7 +156,7 @@ func Register(server *Server) error {
 			})
 	}
 
-	if _server.Rocketmq {
+	if _modules.Rocketmq {
 		inits = append(inits, // 初始化RocketMq
 			func() error {
 				defer wg.Done()
@@ -185,7 +191,7 @@ func Register(server *Server) error {
 	return nil
 }
 
-func DeferHandle() {
+func (h *h) DeferHandle() {
 	zap.L().Info("defer handle trigger")
 
 	// 程序关闭前，释放数据库连接
