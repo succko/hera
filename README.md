@@ -38,3 +38,17 @@ func main() {
 
 }
 ```
+
+## config.yaml
+```yaml
+app:
+  app_name: hera-demo       # 应用名称
+nacos:
+  servers:
+    - server-addr: 
+      port: 
+  namespace: 
+  username: 
+  password: 
+
+```

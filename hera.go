@@ -1,7 +1,7 @@
 package hera
 
 import (
-	"fmt"
+	"github.com/gin-gonic/gin"
 	"github.com/robfig/cron/v3"
 	"github.com/succko/hera/bootstrap"
 	"github.com/succko/hera/global"
@@ -9,32 +9,6 @@ import (
 	"go.uber.org/zap"
 	"sync"
 )
-
-type h struct {
-}
-
-var Hera = new(h)
-
-func main() {
-	defer Hera.DeferHandle()
-	mod := &Modules{
-		Db:        true,
-		Redis:     true,
-		Xxl:       true,
-		Nacos:     true,
-		Metadata:  true,
-		Rocketmq:  true,
-		Oss:       true,
-		Grpc:      true,
-		Flag:      true,
-		Cron:      true,
-		Validator: true,
-	}
-	if err := Hera.Run(mod); err != nil {
-		zap.L().DPanic("Initialization failed", zap.Error(err))
-	}
-	fmt.Println("启动成功")
-}
 
 type Tasks struct {
 	Nacos             map[string]any
@@ -45,9 +19,8 @@ type Tasks struct {
 
 var _tasks *Tasks
 
-func (h *h) Register(tasks *Tasks) *h {
+func RegisterTasks(tasks *Tasks) {
 	_tasks = tasks
-	return h
 }
 
 type Modules struct {
@@ -66,10 +39,21 @@ type Modules struct {
 
 var _modules *Modules
 
-func (h *h) Run(modules *Modules) error {
+func RegisterModules(modules *Modules) {
 	_modules = modules
+	err := run()
+	if err != nil {
+		zap.L().Fatal("初始化配置失败", zap.Error(err))
+	}
+}
+
+func RunServer(f func(router *gin.Engine)) {
+	bootstrap.RunServer(f)
+}
+
+func run() error {
 	if _tasks == nil {
-		h.Register(&Tasks{
+		RegisterTasks(&Tasks{
 			Nacos:             map[string]any{},
 			Cron:              func(c *cron.Cron) {},
 			RocketMqConsumers: map[string]func(message []byte){},
@@ -193,7 +177,7 @@ func (h *h) Run(modules *Modules) error {
 	return nil
 }
 
-func (h *h) DeferHandle() {
+func DeferHandle() {
 	zap.L().Info("defer handle trigger")
 
 	// 程序关闭前，释放数据库连接
