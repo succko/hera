@@ -1,0 +1,62 @@
+syntax = "proto3";
+
+package pb;
+
+option go_package = ".;pb";
+
+message InnoPacket {
+
+  enum PacketType {
+    TYPE_HEARTBEAT = 0;
+    TYPE_INSTRUCTION = 1;
+  }
+
+  PacketType type = 1;
+
+  oneof data {
+    HeartBeatPacket heartBeat = 2;
+    InstructionPacket instruction = 3;
+  }
+
+  bool offlineSend = 4;
+}
+
+message HeartBeatPacket {
+  string id = 1;
+  int64 tenantId = 2;
+  int64 ts = 3;
+  string sign = 4;
+}
+
+message InstructionPacket {
+  string requestId = 1;
+  string pid = 2;
+  string fromId = 3;
+  string toId = 4;
+  int64 timeStamp = 5;
+  string code = 6;
+  string body = 7;
+  ReportStatus report = 8;
+
+  enum ReportStatus {
+    STATUS_SEND = 0;
+    STATUS_ACK = 1;
+    STATUS_RETRY = 2;
+    STATUS_OFFLINE = 3;
+    STATUS_ERROR = 4;
+  }
+}
+
+message Response{
+  int32 Code = 1;
+  string Message = 2;
+}
+
+service Pala {
+  rpc  Send (InnoPacket) returns (Response){}
+}
+
+
+
+
+

@@ -16,10 +16,11 @@ type mq struct{}
 
 var Mq = new(mq)
 
-func InitializeRocketMqConsumers(c map[string]func(message []byte)) []rocketmq.PushConsumer {
+func InitializeRocketMqConsumers() []rocketmq.PushConsumer {
 	var consumers []rocketmq.PushConsumer
-	if len(c) > 0 {
-		for k, v := range c {
+	mqConsumers := global.App.RunConfig.RocketMqConsumers
+	if len(mqConsumers) > 0 {
+		for k, v := range mqConsumers {
 			consumers = append(consumers, initializeRocketMqConsumer(k, v))
 		}
 	}

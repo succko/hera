@@ -2,6 +2,7 @@ package metadata
 
 import (
 	"context"
+	"github.com/succko/hera/global"
 	"github.com/xxl-job/xxl-job-executor-go"
 	"go.uber.org/zap"
 	"sync"
@@ -18,13 +19,17 @@ func (loader *loader) Init(cxt context.Context, param *xxl.RunReq) (msg string) 
 	return
 }
 
-func (loader *loader) InitializeMetadata(funcs []func(wg *sync.WaitGroup)) {
+func (loader *loader) InitializeMetadata() {
 	zap.L().Info("metadata initializeMetadata start")
+	funcs := global.App.RunConfig.MetaData
 	if len(funcs) > 0 {
 		var wg sync.WaitGroup
 		wg.Add(len(funcs))
 		for _, f := range funcs {
-			go f(&wg)
+			func(f func(wg *sync.WaitGroup)) {
+				defer wg.Done()
+				f(&wg)
+			}(f)
 		}
 		wg.Wait()
 	}

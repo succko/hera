@@ -40,7 +40,9 @@ func XxlJobMux(e *gin.Engine, exec xxl.Executor) {
 	e.POST("beat", gin.WrapF(exec.Beat))
 	e.POST("idleBeat", gin.WrapF(exec.IdleBeat))
 	//注册任务handler
-	//task.RegisterXxl(exec)
+	if global.App.RunConfig.Xxl != nil {
+		global.App.RunConfig.Xxl(exec)
+	}
 }
 
 // xxl.Logger接口实现

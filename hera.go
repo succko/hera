@@ -6,22 +6,12 @@ import (
 	"github.com/succko/hera/bootstrap"
 	"github.com/succko/hera/global"
 	"github.com/succko/hera/metadata"
+	"github.com/xxl-job/xxl-job-executor-go"
 	"go.uber.org/zap"
+	"google.golang.org/grpc"
+	"net"
 	"sync"
 )
-
-type Tasks struct {
-	Nacos             map[string]any
-	Cron              func(c *cron.Cron)
-	RocketMqConsumers map[string]func(message []byte)
-	MetaData          []func(wg *sync.WaitGroup)
-}
-
-var _tasks *Tasks
-
-func RegisterTasks(tasks *Tasks) {
-	_tasks = tasks
-}
 
 type Modules struct {
 	Db        bool
@@ -39,28 +29,77 @@ type Modules struct {
 
 var _modules *Modules
 
+// RegisterNacos 注册nacos配置
+func RegisterNacos(m map[string]any) {
+	global.App.RunConfig.Nacos = m
+}
+
+// RegisterCron 注册cron任务
+func RegisterCron(f func(c *cron.Cron)) {
+	global.App.RunConfig.Cron = f
+}
+
+// RegisterRocketMqConsumers 注册rocketmq消费者
+func RegisterRocketMqConsumers(m map[string]func(message []byte)) {
+	global.App.RunConfig.RocketMqConsumers = m
+}
+
+// RegisterMetaData 注册元数据
+func RegisterMetaData(fs []func(wg *sync.WaitGroup)) {
+	global.App.RunConfig.MetaData = fs
+}
+
+// RegisterGrpc 注册grpc服务
+func RegisterGrpc(f func(server *grpc.Server)) {
+	global.App.RunConfig.Grpc = f
+}
+
+func RegisterRouter(f func(router *gin.Engine)) {
+	global.App.RunConfig.Router = f
+}
+
+func RegisterXxl(f func(exec xxl.Executor)) {
+	global.App.RunConfig.Xxl = f
+}
+
+func RegisterSwagger(f func()) {
+	global.App.RunConfig.Swagger = f
+}
+
 func RegisterModules(modules *Modules) {
 	_modules = modules
+	//bootstrap.Modules = modules
 	err := run()
 	if err != nil {
 		zap.L().Fatal("初始化配置失败", zap.Error(err))
 	}
 }
 
-func RunServer(f func(router *gin.Engine)) {
-	bootstrap.RunServer(f)
+// RunHttpServer 启动http服务
+func RunHttpServer() {
+	// 创建 TCP 监听器
+	l, _ := net.Listen("tcp", ":"+global.App.Config.App.Port)
+	bootstrap.RunHttpServer(l)
+}
+
+// RunGrpcServer 启动grpc服务
+func RunGrpcServer() {
+	bootstrap.RunGrpcServer()
+}
+
+func RunWsServer() {
+	// 创建 TCP 监听器
+	l, _ := net.Listen("tcp", ":"+global.App.Config.App.Port)
+	bootstrap.RunWsServer(l)
+}
+
+// RunCMux 启动cmux服务
+func RunCMux() {
+	// 创建 TCP 监听器
+	bootstrap.RunCMux()
 }
 
 func run() error {
-	if _tasks == nil {
-		RegisterTasks(&Tasks{
-			Nacos:             map[string]any{},
-			Cron:              func(c *cron.Cron) {},
-			RocketMqConsumers: map[string]func(message []byte){},
-			MetaData:          []func(wg *sync.WaitGroup){},
-		})
-	}
-
 	// 初始化配置
 	if _, err := bootstrap.InitializeConfig(); err != nil {
 		return err
@@ -68,7 +107,7 @@ func run() error {
 
 	// 初始化nacos配置
 	if _modules.Nacos {
-		if err := bootstrap.InitializeNacosConfig(_tasks.Nacos); err != nil {
+		if err := bootstrap.InitializeNacosConfig(); err != nil {
 			return err
 		}
 	}
@@ -119,7 +158,7 @@ func run() error {
 		inits = append(inits, // 初始化元数据
 			func() error {
 				defer wg.Done()
-				metadata.Loader.InitializeMetadata(_tasks.MetaData)
+				metadata.Loader.InitializeMetadata()
 				return nil
 			})
 	}
@@ -137,7 +176,7 @@ func run() error {
 		inits = append(inits, // 初始化Cron
 			func() error {
 				defer wg.Done()
-				bootstrap.InitializeCron(_tasks.Cron)
+				bootstrap.InitializeCron()
 				return nil
 			})
 	}
@@ -154,7 +193,7 @@ func run() error {
 				}()
 				go func() {
 					defer w.Done()
-					global.App.RocketMqConsumers = bootstrap.InitializeRocketMqConsumers(_tasks.RocketMqConsumers)
+					global.App.RocketMqConsumers = bootstrap.InitializeRocketMqConsumers()
 				}()
 				w.Wait()
 				return nil
