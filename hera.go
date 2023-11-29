@@ -16,23 +16,27 @@ import (
 type Modules struct {
 	Db        bool
 	Redis     bool
-	Xxl       bool
 	Nacos     bool
-	Metadata  bool
-	Rocketmq  bool
 	Oss       bool
-	Swagger   bool
-	Grpc      bool
 	Flag      bool
-	Cron      bool
 	Validator bool
 }
 
-var _modules = new(Modules)
+type _Modules struct {
+	Modules
+	Xxl      bool
+	Metadata bool
+	Rocketmq bool
+	Swagger  bool
+	Grpc     bool
+	Cron     bool
+}
+
+var _modules = new(_Modules)
 
 // RegisterNacos 注册nacos配置
 func RegisterNacos(m map[string]any) {
-	_modules.Xxl = true
+	_modules.Nacos = true
 	global.App.RunConfig.Nacos = m
 }
 
@@ -75,8 +79,12 @@ func RegisterSwagger(f func()) {
 }
 
 func RegisterModules(modules *Modules) {
-	_modules = modules
-	//bootstrap.Modules = modules
+	_modules.Db = modules.Db
+	_modules.Redis = modules.Redis
+	_modules.Nacos = modules.Nacos
+	_modules.Oss = modules.Oss
+	_modules.Flag = modules.Flag
+	_modules.Validator = modules.Validator
 }
 
 // RunHttpServer 启动http服务
