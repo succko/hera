@@ -21,6 +21,7 @@ type Modules struct {
 	Metadata  bool
 	Rocketmq  bool
 	Oss       bool
+	Swagger   bool
 	Grpc      bool
 	Flag      bool
 	Cron      bool
@@ -31,26 +32,31 @@ var _modules *Modules
 
 // RegisterNacos 注册nacos配置
 func RegisterNacos(m map[string]any) {
+	_modules.Xxl = true
 	global.App.RunConfig.Nacos = m
 }
 
 // RegisterCron 注册cron任务
 func RegisterCron(f func(c *cron.Cron)) {
+	_modules.Cron = true
 	global.App.RunConfig.Cron = f
 }
 
 // RegisterRocketMqConsumers 注册rocketmq消费者
 func RegisterRocketMqConsumers(m map[string]func(message []byte)) {
+	_modules.Rocketmq = true
 	global.App.RunConfig.RocketMqConsumers = m
 }
 
 // RegisterMetaData 注册元数据
 func RegisterMetaData(fs []func(wg *sync.WaitGroup)) {
+	_modules.Metadata = true
 	global.App.RunConfig.MetaData = fs
 }
 
 // RegisterGrpc 注册grpc服务
 func RegisterGrpc(f func(server *grpc.Server)) {
+	_modules.Grpc = true
 	global.App.RunConfig.Grpc = f
 }
 
@@ -59,24 +65,26 @@ func RegisterRouter(f func(router *gin.Engine)) {
 }
 
 func RegisterXxl(f func(exec xxl.Executor)) {
+	_modules.Xxl = true
 	global.App.RunConfig.Xxl = f
 }
 
 func RegisterSwagger(f func()) {
+	_modules.Swagger = true
 	global.App.RunConfig.Swagger = f
 }
 
 func RegisterModules(modules *Modules) {
 	_modules = modules
 	//bootstrap.Modules = modules
-	err := run()
-	if err != nil {
-		zap.L().Fatal("初始化配置失败", zap.Error(err))
-	}
 }
 
 // RunHttpServer 启动http服务
 func RunHttpServer() {
+	err := run()
+	if err != nil {
+		global.App.Log.Fatal("run http server error", zap.Error(err))
+	}
 	// 创建 TCP 监听器
 	l, _ := net.Listen("tcp", ":"+global.App.Config.App.Port)
 	bootstrap.RunHttpServer(l)
@@ -84,10 +92,18 @@ func RunHttpServer() {
 
 // RunGrpcServer 启动grpc服务
 func RunGrpcServer() {
+	err := run()
+	if err != nil {
+		global.App.Log.Fatal("run http server error", zap.Error(err))
+	}
 	bootstrap.RunGrpcServer()
 }
 
 func RunWsServer() {
+	err := run()
+	if err != nil {
+		global.App.Log.Fatal("run http server error", zap.Error(err))
+	}
 	// 创建 TCP 监听器
 	l, _ := net.Listen("tcp", ":"+global.App.Config.App.Port)
 	bootstrap.RunWsServer(l)
@@ -95,6 +111,10 @@ func RunWsServer() {
 
 // RunCMux 启动cmux服务
 func RunCMux() {
+	err := run()
+	if err != nil {
+		global.App.Log.Fatal("run http server error", zap.Error(err))
+	}
 	// 创建 TCP 监听器
 	bootstrap.RunCMux()
 }
