@@ -16,7 +16,7 @@ import (
 
 var wg sync.WaitGroup
 
-func InitializeNacosConfig() error {
+func InitializeNacosConfig(m map[string]any) error {
 	// 创建clientConfig的另一种方式
 	clientConfig := *constant.NewClientConfig(
 		constant.WithNamespaceId(global.App.Config.Nacos.Namespace), //当namespace是public时，此处填空字符串。
@@ -40,11 +40,7 @@ func InitializeNacosConfig() error {
 		)
 	}
 
-	m := map[string]any{
-		global.App.Config.App.AppName + "-" + gin.Mode() + ".yaml": &global.App.Config,
-		"start_up_ios.json":     &global.App.Config.StartUpIos,
-		"start_up_android.json": &global.App.Config.StartUpAndroid,
-	}
+	m[global.App.Config.App.AppName+"-"+gin.Mode()+".yaml"] = &global.App.Config
 	wg.Add(len(m))
 	for k, v := range m {
 		k := k

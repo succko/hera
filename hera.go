@@ -37,6 +37,7 @@ func main() {
 }
 
 type Tasks struct {
+	Nacos             map[string]any
 	Cron              func(c *cron.Cron)
 	RocketMqConsumers map[string]func(message []byte)
 	MetaData          []func(wg *sync.WaitGroup)
@@ -69,6 +70,7 @@ func (h *h) Run(modules *Modules) error {
 	_modules = modules
 	if _tasks == nil {
 		h.Register(&Tasks{
+			Nacos:             map[string]any{},
 			Cron:              func(c *cron.Cron) {},
 			RocketMqConsumers: map[string]func(message []byte){},
 			MetaData:          []func(wg *sync.WaitGroup){},
@@ -82,7 +84,7 @@ func (h *h) Run(modules *Modules) error {
 
 	// 初始化nacos配置
 	if _modules.Nacos {
-		if err := bootstrap.InitializeNacosConfig(); err != nil {
+		if err := bootstrap.InitializeNacosConfig(_tasks.Nacos); err != nil {
 			return err
 		}
 	}
