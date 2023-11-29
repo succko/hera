@@ -7,9 +7,12 @@ import (
 	"strconv"
 )
 
-// InitializeCron initializes the cron.
 func InitializeCron(f func(c *cron.Cron)) {
 	bootstrap.InitializeCron(f)
+}
+
+func InitializeRedis() {
+	bootstrap.InitializeRedis()
 }
 
 // ToUTC converts a time string (HH:mm) from a specified timezone to UTC time string (HH:mm).
