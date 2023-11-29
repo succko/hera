@@ -28,7 +28,7 @@ type Modules struct {
 	Validator bool
 }
 
-var _modules *Modules
+var _modules = new(Modules)
 
 // RegisterNacos 注册nacos配置
 func RegisterNacos(m map[string]any) {
