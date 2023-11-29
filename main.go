@@ -36,16 +36,16 @@ func main() {
 	fmt.Println("启动成功")
 }
 
-type C struct {
+type Tasks struct {
 	Cron              func(c *cron.Cron)
 	RocketMqConsumers map[string]func(message []byte)
 	MetaData          []func(wg *sync.WaitGroup)
 }
 
-var _c *C
+var _tasks *Tasks
 
-func (h *h) Callback(c *C) *h {
-	_c = c
+func (h *h) Register(tasks *Tasks) *h {
+	_tasks = tasks
 	return h
 }
 
@@ -67,8 +67,8 @@ var _modules *Modules
 
 func (h *h) Run(modules *Modules) error {
 	_modules = modules
-	if _c == nil {
-		h.Callback(&C{
+	if _tasks == nil {
+		h.Register(&Tasks{
 			Cron:              func(c *cron.Cron) {},
 			RocketMqConsumers: map[string]func(message []byte){},
 			MetaData:          []func(wg *sync.WaitGroup){},
@@ -133,7 +133,7 @@ func (h *h) Run(modules *Modules) error {
 		inits = append(inits, // 初始化元数据
 			func() error {
 				defer wg.Done()
-				metadata.Loader.InitializeMetadata(_c.MetaData)
+				metadata.Loader.InitializeMetadata(_tasks.MetaData)
 				return nil
 			})
 	}
@@ -151,7 +151,7 @@ func (h *h) Run(modules *Modules) error {
 		inits = append(inits, // 初始化Cron
 			func() error {
 				defer wg.Done()
-				bootstrap.InitializeCron(_c.Cron)
+				bootstrap.InitializeCron(_tasks.Cron)
 				return nil
 			})
 	}
@@ -168,7 +168,7 @@ func (h *h) Run(modules *Modules) error {
 				}()
 				go func() {
 					defer w.Done()
-					global.App.RocketMqConsumers = bootstrap.InitializeRocketMqConsumers(_c.RocketMqConsumers)
+					global.App.RocketMqConsumers = bootstrap.InitializeRocketMqConsumers(_tasks.RocketMqConsumers)
 				}()
 				w.Wait()
 				return nil
