@@ -123,7 +123,7 @@ func Init() error {
 	return nil
 }
 
-func deferHandle() {
+func DeferHandle() {
 	zap.L().Info("defer handle trigger")
 
 	// 程序关闭前，释放数据库连接
