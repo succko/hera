@@ -53,9 +53,9 @@ func RegisterRocketMqConsumers(m map[string]func(message []byte)) {
 }
 
 // RegisterMetaData 注册元数据
-func RegisterMetaData(fs []func()) {
+func RegisterMetaData(f func() []func()) {
 	_modules.Metadata = true
-	global.App.RunConfig.MetaData = fs
+	global.App.RunConfig.MetaData = f()
 }
 
 // RegisterGrpc 注册grpc服务

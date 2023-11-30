@@ -31,7 +31,9 @@ func main() {
 		})
 	})
 	hera.RegisterRocketMqConsumers(map[string]func(message []byte){})
-	hera.RegisterMetaData([]func(){})
+	hera.RegisterMetaData(func() []func() {
+		return []func(){}
+	})
 	hera.RegisterGrpc(func(server *grpc.Server) {
 		// 注册 grpc 服务
 	})
