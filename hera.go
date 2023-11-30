@@ -67,8 +67,6 @@ func RegisterModules(modules *config.Modules) {
 	_modules.Oss = modules.Oss
 	_modules.Flag = modules.Flag
 	_modules.Validator = modules.Validator
-	_modules.Http = modules.Http
-	_modules.Ws = modules.Ws
 }
 
 // RunHttpServer 启动http服务
@@ -105,8 +103,15 @@ func RunWsServer() {
 }
 
 // RunCMux 启动cmux服务
-func RunCMux() {
+func RunCMux(runHttpServer bool, runGrpcServer bool, runWsServer bool) {
+	if !runHttpServer && !runGrpcServer && !runWsServer {
+		zap.L().Fatal("RunCMux server error")
+		return
+	}
 	err := run()
+	global.App.Modules.Http = runHttpServer
+	global.App.Modules.Grpc = runGrpcServer
+	global.App.Modules.Ws = runWsServer
 	if err != nil {
 		global.App.Log.Fatal("run http server error", zap.Error(err))
 	}
