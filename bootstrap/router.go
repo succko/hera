@@ -48,18 +48,21 @@ func setupRouter() *gin.Engine {
 	})
 
 	// 注册 ws 路由
-	r.GET("/ws", func(ctx *gin.Context) {
-		ws.ServeWs(ctx.Writer, ctx.Request)
-	})
+	if global.App.Modules.Ws {
+		r.GET("/ws", func(ctx *gin.Context) {
+			ws.ServeWs(ctx.Writer, ctx.Request)
+		})
+	}
 
 	// 注册 api 分组路由
 	global.App.RunConfig.Router(r)
 
 	// 注册 swagger 分组路由
-
-	if gin.Mode() != gin.ReleaseMode {
-		swaggerGroup := r.Group("/swagger")
-		routes.SetSwaggerGroupRoutes(swaggerGroup)
+	if global.App.Modules.Swagger {
+		if gin.Mode() != gin.ReleaseMode {
+			swaggerGroup := r.Group("/swagger")
+			routes.SetSwaggerGroupRoutes(swaggerGroup)
+		}
 	}
 	return r
 }
@@ -83,12 +86,18 @@ func RunCMux() {
 
 	// 启动 gRPC 服务器
 	//go RunGrpcServer(grpcL)
-	go RunGrpcServer()
-	//go RunWsServer(wsL)
-	// 启动 WebSocket 服务器
-	go ws.SingletonHub().Run()
-	// 启动 HTTP 服务器
-	go RunHttpServer(httpL)
+	if global.App.Modules.Grpc {
+		go RunGrpcServer()
+	}
+	if global.App.Modules.Ws {
+		//go RunWsServer(wsL)
+		// 启动 WebSocket 服务器
+		go ws.SingletonHub().Run()
+	}
+	if global.App.Modules.Http {
+		// 启动 HTTP 服务器
+		go RunHttpServer(httpL)
+	}
 
 	// 启动 CMux
 	if err := m.Serve(); !strings.Contains(err.Error(), "use of closed network connection") {
@@ -134,9 +143,9 @@ func RunHttpServer(l net.Listener) {
 	r := setupRouter()
 
 	// 添加 XxlJob 路由
-	//if Modules.Xxl {
-	XxlJobMux(r, global.App.Xxl)
-	//}
+	if global.App.Modules.Xxl {
+		XxlJobMux(r, global.App.Xxl)
+	}
 
 	// 添加 pprof 性能分析 路由
 	pprof.Register(r)

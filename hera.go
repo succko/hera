@@ -4,6 +4,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/robfig/cron/v3"
 	"github.com/succko/hera/bootstrap"
+	"github.com/succko/hera/config"
 	"github.com/succko/hera/global"
 	"github.com/succko/hera/metadata"
 	"github.com/xxl-job/xxl-job-executor-go"
@@ -13,26 +14,7 @@ import (
 	"sync"
 )
 
-type Modules struct {
-	Db        bool
-	Redis     bool
-	Nacos     bool
-	Oss       bool
-	Flag      bool
-	Validator bool
-}
-
-type _Modules struct {
-	Modules
-	Xxl      bool
-	Metadata bool
-	Rocketmq bool
-	Swagger  bool
-	Grpc     bool
-	Cron     bool
-}
-
-var _modules = new(_Modules)
+var _modules = new(config.AllModules)
 
 // RegisterNacos 注册nacos配置
 func RegisterNacos(m map[string]any) {
@@ -78,7 +60,7 @@ func RegisterSwagger(f func()) {
 	global.App.RunConfig.Swagger = f
 }
 
-func RegisterModules(modules *Modules) {
+func RegisterModules(modules *config.Modules) {
 	_modules.Db = modules.Db
 	_modules.Redis = modules.Redis
 	_modules.Nacos = modules.Nacos
@@ -89,6 +71,7 @@ func RegisterModules(modules *Modules) {
 
 // RunHttpServer 启动http服务
 func RunHttpServer() {
+	global.App.Modules.Http = true
 	err := run()
 	if err != nil {
 		global.App.Log.Fatal("run http server error", zap.Error(err))
@@ -100,6 +83,7 @@ func RunHttpServer() {
 
 // RunGrpcServer 启动grpc服务
 func RunGrpcServer() {
+	global.App.Modules.Grpc = true
 	err := run()
 	if err != nil {
 		global.App.Log.Fatal("run http server error", zap.Error(err))
@@ -108,6 +92,7 @@ func RunGrpcServer() {
 }
 
 func RunWsServer() {
+	global.App.Modules.Ws = true
 	err := run()
 	if err != nil {
 		global.App.Log.Fatal("run http server error", zap.Error(err))
@@ -128,6 +113,7 @@ func RunCMux() {
 }
 
 func run() error {
+	global.App.Modules = _modules
 	// 初始化配置
 	if _, err := bootstrap.InitializeConfig(); err != nil {
 		return err

@@ -25,6 +25,7 @@ type app struct {
 	RocketMqProducer  rocketmq.Producer
 	RocketMqConsumers []rocketmq.PushConsumer
 	RunConfig         RunConfig
+	Modules           *config.AllModules
 }
 
 type RunConfig struct {
