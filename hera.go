@@ -67,6 +67,8 @@ func RegisterModules(modules *config.Modules) {
 	_modules.Oss = modules.Oss
 	_modules.Flag = modules.Flag
 	_modules.Validator = modules.Validator
+	_modules.Http = modules.Http
+	_modules.Ws = modules.Ws
 }
 
 // RunHttpServer 启动http服务
