@@ -71,8 +71,8 @@ func RegisterModules(modules *config.Modules) {
 
 // RunHttpServer 启动http服务
 func RunHttpServer() {
-	global.App.Modules.Http = true
 	err := run()
+	global.App.Modules.Http = true
 	if err != nil {
 		global.App.Log.Fatal("run http server error", zap.Error(err))
 	}
@@ -83,8 +83,8 @@ func RunHttpServer() {
 
 // RunGrpcServer 启动grpc服务
 func RunGrpcServer() {
-	global.App.Modules.Grpc = true
 	err := run()
+	global.App.Modules.Grpc = true
 	if err != nil {
 		global.App.Log.Fatal("run http server error", zap.Error(err))
 	}
@@ -92,8 +92,8 @@ func RunGrpcServer() {
 }
 
 func RunWsServer() {
-	global.App.Modules.Ws = true
 	err := run()
+	global.App.Modules.Ws = true
 	if err != nil {
 		global.App.Log.Fatal("run http server error", zap.Error(err))
 	}
