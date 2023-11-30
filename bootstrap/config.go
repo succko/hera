@@ -3,6 +3,7 @@ package bootstrap
 import (
 	"fmt"
 	"github.com/fsnotify/fsnotify"
+	"github.com/gin-gonic/gin"
 	"github.com/spf13/viper"
 	"github.com/succko/hera/global"
 	"go.uber.org/zap"
@@ -41,6 +42,10 @@ func InitializeConfig() (*viper.Viper, error) {
 	if err := v.Unmarshal(&global.App.Config); err != nil {
 		zap.L().Error(fmt.Sprintf("unmarshal config failed: %s", err))
 		return nil, err
+	}
+
+	if global.App.Config.App.Env == gin.ReleaseMode {
+		gin.SetMode(global.App.Config.App.Env)
 	}
 
 	return v, nil
