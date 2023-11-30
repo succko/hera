@@ -17,9 +17,9 @@ import (
 var _modules = new(config.AllModules)
 
 // RegisterNacos 注册nacos配置
-func RegisterNacos(m map[string]any) {
+func RegisterNacos(f func() map[string]any) {
 	_modules.Nacos = true
-	global.App.RunConfig.Nacos = m
+	global.App.RunConfig.Nacos = f()
 }
 
 // RegisterCron 注册cron任务

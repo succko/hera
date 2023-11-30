@@ -23,7 +23,9 @@ func main() {
 	hera.RegisterModules(modules)
 
 	// 注册任务
-	hera.RegisterNacos(map[string]any{})
+	hera.RegisterNacos(func() map[string]any {
+		return map[string]any{}
+	})
 	hera.RegisterCron(func(c *cron.Cron) {
 		// 定时任务列表
 		_, _ = c.AddFunc("*/1 * * * *?", func() {
