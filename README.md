@@ -5,37 +5,41 @@ go get -u github.com/succko/hera
 ```
 
 ## 编写main.go
-```shell
+```go
 package main
 
 import (
-	"github.com/gin-gonic/gin"
 	"github.com/succko/hera"
-	"net/http"
+	"github.com/succko/hera/config"
 )
 
 func main() {
-	defer hera.Hera.DeferHandle()
-	modules := &hera.Modules{
-		Nacos:    true,
-		Db:       true,
-		Redis:    true,
-		Rocketmq: true,
-	}
-	_ = hera.Hera.Run(modules)
-
-	r := gin.Default()
-
-	// global.App 为注册的配置和服务
-
-	// 测试路由
-	r.GET("/ping", func(c *gin.Context) {
-		c.String(http.StatusOK, "pong")
+	defer hera.DeferHandle()
+	// 注册模块
+	hera.RegisterModules(&config.Modules{
+		Db:        true,
+		Redis:     true,
+		Nacos:     true,
+		Oss:       true,
+		Flag:      true,
+		Validator: true,
 	})
-
-	// 启动服务器
-	r.Run(":8080")
-
+	// cron
+	hera.RegisterCron(task.RegisterCron)
+	// xxl
+	hera.RegisterXxl(task.RegisterXxl)
+	// 消息队列消费者
+	hera.RegisterRocketMqConsumers(mq.RegisterRocketMqConsumers)
+	// 元数据加载
+	hera.RegisterMetaData(metadata.RegisterMetaData)
+	// grpc
+	hera.RegisterGrpc(server.RegisterGrpc)
+	// 路由
+	hera.RegisterRouter(routes.RegisterRouter)
+	// swagger
+	hera.RegisterSwagger(routes.RegisterSwagger)
+	// 启动服务
+	hera.RunCMux(true, true, true)
 }
 ```
 
