@@ -74,7 +74,7 @@ func RunHttpServer() {
 	err := run()
 	global.App.Modules.Http = true
 	if err != nil {
-		global.App.Log.Fatal("run http server error", zap.Error(err))
+		zap.L().Fatal("run http server error", zap.Error(err))
 	}
 	// 创建 TCP 监听器
 	l, _ := net.Listen("tcp", ":"+global.App.Config.App.Port)
@@ -86,7 +86,7 @@ func RunGrpcServer() {
 	err := run()
 	global.App.Modules.Grpc = true
 	if err != nil {
-		global.App.Log.Fatal("run http server error", zap.Error(err))
+		zap.L().Fatal("run http server error", zap.Error(err))
 	}
 	bootstrap.RunGrpcServer()
 }
@@ -95,7 +95,7 @@ func RunWsServer() {
 	err := run()
 	global.App.Modules.Ws = true
 	if err != nil {
-		global.App.Log.Fatal("run http server error", zap.Error(err))
+		zap.L().Fatal("run http server error", zap.Error(err))
 	}
 	// 创建 TCP 监听器
 	l, _ := net.Listen("tcp", ":"+global.App.Config.App.Port)
@@ -113,7 +113,7 @@ func RunCMux(runHttpServer bool, runGrpcServer bool, runWsServer bool) {
 	global.App.Modules.Grpc = runGrpcServer
 	global.App.Modules.Ws = runWsServer
 	if err != nil {
-		global.App.Log.Fatal("run http server error", zap.Error(err))
+		zap.L().Fatal("run http server error", zap.Error(err))
 	}
 	// 创建 TCP 监听器
 	bootstrap.RunCMux()
