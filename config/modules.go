@@ -7,6 +7,8 @@ type Modules struct {
 	Oss       bool
 	Flag      bool
 	Validator bool
+	Ws        bool
+	Http      bool
 }
 
 type AllModules struct {
@@ -16,7 +18,5 @@ type AllModules struct {
 	Rocketmq bool
 	Swagger  bool
 	Grpc     bool
-	Ws       bool
-	Http     bool
 	Cron     bool
 }
