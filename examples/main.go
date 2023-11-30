@@ -30,7 +30,9 @@ func main() {
 			zap.L().Info("cron task")
 		})
 	})
-	hera.RegisterRocketMqConsumers(map[string]func(message []byte){})
+	hera.RegisterRocketMqConsumers(func() map[string]func(message []byte) {
+		return map[string]func(message []byte){}
+	})
 	hera.RegisterMetaData(func() []func() {
 		return []func(){}
 	})

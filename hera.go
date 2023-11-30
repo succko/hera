@@ -47,9 +47,9 @@ func RegisterCron(f func(c *cron.Cron)) {
 }
 
 // RegisterRocketMqConsumers 注册rocketmq消费者
-func RegisterRocketMqConsumers(m map[string]func(message []byte)) {
+func RegisterRocketMqConsumers(f func() map[string]func(message []byte)) {
 	_modules.Rocketmq = true
-	global.App.RunConfig.RocketMqConsumers = m
+	global.App.RunConfig.RocketMqConsumers = f()
 }
 
 // RegisterMetaData 注册元数据
