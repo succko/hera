@@ -207,10 +207,12 @@ func (c *Client) sendMessage(message []byte) {
 func sendMessage(uuid string, innoPacket *pb.InnoPacket) {
 	clients, ok := SingletonHub().ids[uuid]
 	if ok {
-		message, _ := proto.Marshal(innoPacket)
-		for _, c := range clients {
-			c.sendMessage(message)
-		}
+		zap.L().Info("sendMessage uuid not online", zap.String("uuid", uuid))
+		return
+	}
+	message, _ := proto.Marshal(innoPacket)
+	for _, c := range clients {
+		c.sendMessage(message)
 	}
 }
 
